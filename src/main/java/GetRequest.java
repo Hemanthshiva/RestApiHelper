@@ -1,6 +1,8 @@
 import org.apache.http.StatusLine;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
@@ -8,17 +10,18 @@ public class GetRequest {
 
     public static void main(String[] args) {
 
-        try {
-            HttpGet get = new HttpGet("http://localhost:8080/laptop-bag/webapi/api/all");
-            CloseableHttpClient client = HttpClientBuilder.create().build();
+        HttpGet get = new HttpGet("http://localhost:8080/laptop-bag/webapi/api/all");
 
-            CloseableHttpResponse response = client.execute(get);
+        try (CloseableHttpClient client = HttpClientBuilder.create().build();
+             CloseableHttpResponse response = client.execute(get))
+        {
             StatusLine status = response.getStatusLine();
             System.out.println("This is the status code: " + status.getStatusCode());
             System.out.println("This is version: " + status.getProtocolVersion());
-            client.close();
-            response.close();
 
+            ResponseHandler<String> responseBody = new BasicResponseHandler();
+            String getResponseBody = responseBody.handleResponse(response);
+            System.out.println("This is our response body: "+getResponseBody);
 
         } catch (Exception e) {
             e.printStackTrace();
